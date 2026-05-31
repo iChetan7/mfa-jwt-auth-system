@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Secure Access</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f1f5f9;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+        /* Navbar */
+        .navbar {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+        /* Main Container */
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        /* Welcome Card */
+        .welcome-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+        .welcome-card h1 {
+            font-size: 1.6rem;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+        .welcome-card p {
+            color: #475569;
+        }
+        .badge {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #4f46e5;
+            padding: 0.2rem 0.8rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-top: 0.75rem;
+        }
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.2rem;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.3rem;
+        }
+        /* Data Panel */
+        .data-panel {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+        .data-panel h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #0f172a;
+        }
+        .info-box {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e2e8f0;
+            font-family: monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+            color: #334155;
+        }
+        .btn-refresh {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+        .btn-refresh:hover {
+            background: #4338ca;
+        }
+        .admin-response {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">TokenAuth MFA</div>
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h1>Welcome back, Admin</h1>
+            <p>You are securely logged in with Multi-Factor Authentication.</p>
+            <div class="badge">Access granted</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">JWT</div>
+                <div class="stat-label">Access + Refresh Tokens</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">TOTP</div>
+                <div class="stat-label">Google Authenticator</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">RBAC</div>
+                <div class="stat-label">Admin Role</div>
+            </div>
+        </div>
+
+        <div class="data-panel">
+            <h3>Protected Resource</h3>
+            <div id="adminData" class="info-box admin-response">Loading admin access status...</div>
+            
+            <h3 style="margin-top: 1rem;">Token Information</h3>
+            <div id="tokenInfo" class="info-box">Access token: loading...</div>
+            
+            <button id="refreshDataBtn" class="btn-refresh">Refresh Data</button>
+        </div>
+    </div>
+
+    <script>
+        const accessToken = localStorage.getItem('access_token');
+        const refreshToken = localStorage.getItem('refresh_token');
+
+        if (!accessToken) {
+            window.location.href = '/auth';
+        }
+
+        // Display token preview
+        const tokenPreview = accessToken.substring(0, 50) + '...';
+        document.getElementById('tokenInfo').innerHTML = `<strong>Access Token</strong><br>${tokenPreview}<br><br><strong>Refresh Token</strong><br>Active (7 days validity)`;
+
+        // Fetch admin data
+        async function fetchAdminData() {
+            try {
+                const response = await fetch('/admin', {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                const data = await response.json();
+                const adminDiv = document.getElementById('adminData');
+                if (response.ok) {
+                    adminDiv.innerHTML = `<strong>Status:</strong> Authorized<br><strong>Message:</strong> ${data.message}<br><strong>Access Level:</strong> Full Admin`;
+                    adminDiv.classList.add('admin-response');
+                } else {
+                    adminDiv.innerHTML = `<strong>Access Denied:</strong> ${data.message}`;
+                    adminDiv.style.background = '#fee2e2';
+                    adminDiv.style.color = '#991b1b';
+                }
+            } catch (error) {
+                document.getElementById('adminData').innerHTML = 'Network error. Please try again.';
+            }
+        }
+
+        fetchAdminData();
+
+        // Refresh button
+        document.getElementById('refreshDataBtn').addEventListener('click', () => {
+            fetchAdminData();
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await fetch('/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refresh_token: refreshToken })
+                });
+            } catch(e) {}
+            localStorage.clear();
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>

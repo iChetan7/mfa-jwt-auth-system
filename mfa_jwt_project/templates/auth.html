@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Signup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255,255,255,0.98);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.75rem;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .toggle {
+            text-align: center;
+            margin-top: 1rem;
+            color: #4f46e5;
+            cursor: pointer;
+        }
+        .message {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        .qr-box {
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+        .qr-box img {
+            max-width: 150px;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div id="loginForm">
+        <h2>Log in</h2>
+        <form id="loginSubmit">
+            <input type="text" id="loginUsername" placeholder="Username" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <input type="text" id="loginOtp" placeholder="6-digit code" required>
+            <button type="submit">Log in →</button>
+        </form>
+        <div class="toggle" id="showSignup">Don't have an account? Sign up</div>
+        <div id="loginMessage" class="message"></div>
+    </div>
+    <div id="signupForm" style="display: none;">
+        <h2>Sign up</h2>
+        <form id="signupSubmit">
+            <input type="text" id="signupUsername" placeholder="Username" required>
+            <input type="email" id="signupEmail" placeholder="Email" required>
+            <input type="password" id="signupPassword" placeholder="Password" required>
+            <input type="password" id="signupConfirm" placeholder="Confirm password" required>
+            <button type="submit">Sign up →</button>
+        </form>
+        <div class="toggle" id="showLogin">Already have an account? Log in</div>
+        <div id="signupMessage" class="message"></div>
+        <div class="qr-box" id="qrBox">
+            <p>Scan with Google Authenticator</p>
+            <img id="qrImg" alt="QR">
+        </div>
+    </div>
+</div>
+
+<script>
+    const loginDiv = document.getElementById('loginForm');
+    const signupDiv = document.getElementById('signupForm');
+    document.getElementById('showSignup').onclick = () => {
+        loginDiv.style.display = 'none';
+        signupDiv.style.display = 'block';
+    };
+    document.getElementById('showLogin').onclick = () => {
+        signupDiv.style.display = 'none';
+        loginDiv.style.display = 'block';
+    };
+
+    // Signup
+    document.getElementById('signupSubmit').onsubmit = async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('signupUsername').value;
+        const password = document.getElementById('signupPassword').value;
+        const confirm = document.getElementById('signupConfirm').value;
+        if (password !== confirm) {
+            document.getElementById('signupMessage').innerHTML = '<span style="color:red">Passwords do not match</span>';
+            return;
+        }
+        const res = await fetch('/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, role: 'admin' })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            // Fetch QR
+            const qrRes = await fetch(`/mfa/qrcode?username=${username}`);
+            const qrData = await qrRes.json();
+            if (qrData.qr_base64) {
+                document.getElementById('qrImg').src = 'data:image/png;base64,' + qrData.qr_base64;
+                document.getElementById('qrBox').style.display = 'block';
+            }
+            document.getElementById('signupMessage').innerHTML = '<span style="color:green">Account created! Scan QR and login.</span>';
+        } else {
+            document.getElementById('signupMessage').innerHTML = '<span style="color:red">' + data.message + '</span>';
+        }
+    };
+
+    // Login
+    document.getElementById('loginSubmit').onsubmit = async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+        const otp = document.getElementById('loginOtp').value;
+        const res = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, otp })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+            window.location.href = '/dashboard';
+        } else {
+            document.getElementById('loginMessage').innerHTML = '<span style="color:red">' + data.message + '</span>';
+        }
+    };
+</script>
+</body>
+</html>

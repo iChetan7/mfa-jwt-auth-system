@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token-Based Authentication</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a5f3fc, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-btn.signup {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border: none;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .left-text {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .left-text h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .left-text p {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 0.75rem 1.8rem;
+            border-radius: 3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 12px rgba(79,70,229,0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(79,70,229,0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .right-image {
+            flex: 1;
+            min-width: 280px;
+            text-align: center;
+        }
+
+        .right-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 1rem;
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            .left-text h1 { font-size: 2rem; }
+            .left-text p { font-size: 1rem; }
+            .btn-group { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">TokenAuth</div>
+        <div class="nav-links">
+            <button class="nav-btn" id="loginNavBtn">Log in</button>
+            <button class="nav-btn signup" id="signupNavBtn">Sign up</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="left-text">
+            <h1>Token-Based Authentication</h1>
+            <p>A Refresh Token is a special kind of token that can be used to obtain a new renewed access token which allows access to the protected resources. You can request for the new access tokens by using the Refresh Token in Web API until the Refresh Token is valid.</p>
+            <div class="btn-group">
+                <button class="btn-primary" id="getStartedBtn">Get started</button>
+                <button class="btn-secondary" id="learnMoreBtn">Learn more</button>
+            </div>
+        </div>
+        <div class="right-image">
+            <img src="d:\Project\IM&AC\static\diagram.png" alt="Token Flow Diagram">
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2026 TokenAuth | Secure MFA + JWT Implementation
+    </div>
+
+    <script>
+        document.getElementById('loginNavBtn').addEventListener('click', () => window.location.href = '/auth');
+        document.getElementById('signupNavBtn').addEventListener('click', () => window.location.href = '/auth');
+        document.getElementById('getStartedBtn').addEventListener('click', () => window.location.href = '/auth');
+        document.getElementById('learnMoreBtn').addEventListener('click', () => {
+            document.querySelector('.right-image').scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
