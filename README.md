@@ -4,7 +4,7 @@ A production-ready **Multi-Factor Authentication (MFA)** system built with Flask
 
 ## 🚀 Live Demo
 
-Check out the live application:[mfa-jwt-auth-system.vercel.app](https://mfa-jwt-auth-system.vercel.app)
+Check out the live application:[mfa-jwt-auth-system-git-main-galgotias-s-projects.vercel.app](https://mfa-jwt-auth-system-galgotias-s-projects.vercel.app/)
 
 ## ✨ Key Features
 
