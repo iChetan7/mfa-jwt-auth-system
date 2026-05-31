@@ -1,4 +1,3 @@
-# 🔐 MFA-JWT-Auth-System
 
 A production-ready **Multi-Factor Authentication (MFA)** system built with Flask. This project adds a strong layer of security by combining **JWT tokens** with **Time-based One-Time Passwords (TOTP)** using the Google Authenticator app.
 
